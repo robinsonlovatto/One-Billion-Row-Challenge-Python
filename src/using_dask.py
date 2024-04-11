@@ -3,18 +3,13 @@ import dask.dataframe as dd
 
 def create_dask_df():
     dask.config.set({'dataframe.query-planning': True})
-    # Configurando o Dask DataFrame para ler o arquivo CSV
-    # Como o arquivo não tem cabeçalho, especificamos os nomes das colunas manualmente
+    # Configuring Dask DataFrame to read CSV file
+    # Since the file has no header, we specify the column names manually
     df = dd.read_csv("data/measurements.txt", sep=";", header=None, names=["station", "measure"])
     
-    # Agrupando por 'station' e calculando o máximo, mínimo e média de 'measure'
-    # O Dask realiza operações de forma lazy, então esta parte apenas define o cálculo
+    # Grouping by 'station' and calculating the maximum, minimum and average of 'measure'
+    # Dask performs operations in a lazy way, so this part just defines the calculation
     grouped_df = df.groupby("station")['measure'].agg(['max', 'min', 'mean']).reset_index()
-
-    # O Dask não suporta a ordenação direta de DataFrames agrupados/resultantes de forma eficiente
-    # Mas você pode computar o resultado e então ordená-lo se o dataset resultante não for muito grande
-    # ou se for essencial para a próxima etapa do processamento
-    # A ordenação será realizada após a chamada de .compute(), se necessário
 
     return grouped_df
 
@@ -24,7 +19,7 @@ if __name__ == "__main__":
     start_time = time.time()
     df = create_dask_df()
     
-    # O cálculo real e a ordenação são feitos aqui
+    # calculation and sorting
     result_df = df.compute().sort_values("station")
     took = time.time() - start_time
 
